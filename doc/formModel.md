@@ -1,4 +1,4 @@
 ﻿# Form model
 
-![Form Model](/img/form-model.svg)
+![Form Model](/img/form-model.min.svg)
 
