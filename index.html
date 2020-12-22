@@ -37,20 +37,56 @@
 			baseUrl: '/',
 			map: {
 				'*': {
-					'transport': 'js/transport-http@a.2',
-					'showdown': 'js/showdown@1.9.1.min'
+					'transport'	: 'js/transport-http@a.2',
+					'showdown'	: 'js/showdown@1.9.1.min',
+					'dm-syntax'	: 'js/dm-syntax@1.0'
 				}
 			}
 		});
 
-		require(['transport', 'showdown'], function (transport, showdown)
+		require(['transport', 'showdown', 'dm-syntax'], function (transport, showdown, dmsyntax)
 		{
 			var wp				= document.getElementById('workplace');
 			var startContent	= wp.innerHTML;
 			var conv			= new showdown.Converter();
 			var cache			= {};
+			conv.useExtension({
+				type			: 'output',
+				filter			: function (text, converter, options)
+				{
+					var re		= /<pre><code(?:[^>]+language-([\w]+))?[^>]*>(.*?)<\/code><\/pre>/gs;
+					text		= text.replace(re, function(m0, m1, m2)
+					{
+						switch (m1 && m1.toUpperCase())
+						{
+							case 'CS':
+							case 'CSHARP':
+								return '<pre><code>'+dmsyntax.CS(_unsafe(m2))+'</code></pre>';
+							case 'JS':
+							case 'JSCRIPT':
+							case 'JAVASCRIPT':
+								return '<pre><code>'+dmsyntax.JS(_unsafe(m2))+'</code></pre>';
+							case 'CSS':
+								return '<pre><code>'+dmsyntax.CSS(_unsafe(m2))+'</code></pre>';
+							case 'XML':
+								return '<pre><code>'+dmsyntax.XML(_unsafe(m2))+'</code></pre>';
+							case 'HTML':
+								return '<pre><code>'+dmsyntax.HTML(_unsafe(m2))+'</code></pre>';
+							default:
+								return m0;
+						}
+					});
+
+					return text;
+				}
+			});
 
 			console.log('showdown defaults: ', showdown.getDefaultOptions());
+
+			function _unsafe(txt)
+			{
+				return txt.replace(/&(gt|lt|amp);/g, function(m) { return { '&amp;' : '&', '&lt;' : '<', '&gt;' : '>' }[m]; });
+			}
 
 			function _hook()
 			{
