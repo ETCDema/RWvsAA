@@ -435,7 +435,7 @@ article p, article li
 
 article p
 {
-	text-indent: 1.4em;
+	/* text-indent: 1.4em; */
     text-align: justify;
 }
 
